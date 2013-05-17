@@ -10,15 +10,21 @@ namespace HeadsUp
         [STAThread]
         public static void Main()
         {
+            //get details from Gmail
             var gmailFeed = new GmailHandler("<USERNAME HERE>", "<PASSWORD HERE>");
 
             XmlDocument myXml = gmailFeed.GetGmailAtom();
 
-            var unreadCount = myXml.GetElementsByTagName("fullcount");
-            var xmlNode = unreadCount.Item(0);
+            //retrieve unread count from XML provided by Gmail
+            var fullCountNode = myXml.GetElementsByTagName("fullcount");
+
+            var xmlNode = fullCountNode.Item(0);
+
             if (xmlNode == null) return;
-            var unreadcount2 = xmlNode.InnerText;
-            Application.Run(new SysTrayApp(unreadcount2));
+            var unreadcount = xmlNode.InnerText;
+
+            //send info to application runner
+            Application.Run(new SysTrayApp(unreadcount));
         }
 
         private readonly NotifyIcon _trayIcon;
@@ -41,6 +47,7 @@ namespace HeadsUp
             _trayIcon.ContextMenu = _trayMenu;
             _trayIcon.Visible = true;
 
+            //deal with the balloon
             _trayIcon.BalloonTipTitle = "HeadsUp";
             _trayIcon.BalloonTipText = "You have " + unreadcount + " unread emails";
             _trayIcon.BalloonTipClicked += ClickedNow;
